@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: gymapp-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: gym
+      MYSQL_ROOT_PASSWORD: Sample-pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pSample-pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gymapp-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/gym?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Sample-pass
+      APP_JWT_SECRET: change-this-to-a-very-long-random-secret-key-at-least-32-bytes
+      APP_JWT_EXPIRATION_SECONDS: 86400
+      GOOGLE_CLIENT_ID: YOUR_GOOGLE_CLIENT_ID
+      GOOGLE_CLIENT_SECRET: YOUR_GOOGLE_CLIENT_SECRET
+      FACEBOOK_CLIENT_ID: YOUR_FACEBOOK_CLIENT_ID
+      FACEBOOK_CLIENT_SECRET: YOUR_FACEBOOK_CLIENT_SECRET
+      TWITTER_CLIENT_ID: YOUR_TWITTER_CLIENT_ID
+      TWITTER_CLIENT_SECRET: YOUR_TWITTER_CLIENT_SECRET
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:

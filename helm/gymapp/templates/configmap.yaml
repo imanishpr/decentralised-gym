@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gymapp.fullname" . }}-config
+  labels:
+    {{- include "gymapp.labels" . | nindent 4 }}
+data:
+  SERVER_PORT: {{ .Values.env.serverPort | quote }}
+  SPRING_DATASOURCE_URL: {{ tpl .Values.env.datasourceUrl . | quote }}
+  SPRING_DATASOURCE_USERNAME: {{ .Values.env.datasourceUsername | quote }}
+  APP_JWT_EXPIRATION_SECONDS: {{ .Values.env.jwtExpirationSeconds | quote }}
+  GOOGLE_CLIENT_ID: {{ .Values.env.googleClientId | quote }}
+  FACEBOOK_CLIENT_ID: {{ .Values.env.facebookClientId | quote }}
+  TWITTER_CLIENT_ID: {{ .Values.env.twitterClientId | quote }}

@@ -1,0 +1,59 @@
+replicaCount: 3
+
+image:
+  repository: imanishpr/decentralised-gym
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+  hosts:
+    - host: api.gymapp.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: gymapp-prod-tls
+      hosts:
+        - api.gymapp.example.com
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 768Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+env:
+  serverPort: "8080"
+  datasourceUrl: jdbc:mysql://{{ include "gymapp.fullname" . }}-mysql:3306/gym?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+  datasourceUsername: root
+  jwtExpirationSeconds: "86400"
+  googleClientId: REPLACE_PROD_GOOGLE_CLIENT_ID
+  facebookClientId: REPLACE_PROD_FACEBOOK_CLIENT_ID
+  twitterClientId: REPLACE_PROD_TWITTER_CLIENT_ID
+
+secrets:
+  datasourcePassword: REPLACE_PROD_DB_PASSWORD
+  jwtSecret: REPLACE_PROD_LONG_RANDOM_JWT_SECRET_MIN_32_CHARS
+  googleClientSecret: REPLACE_PROD_GOOGLE_CLIENT_SECRET
+  facebookClientSecret: REPLACE_PROD_FACEBOOK_CLIENT_SECRET
+  twitterClientSecret: REPLACE_PROD_TWITTER_CLIENT_SECRET
+
+mysql:
+  enabled: true
+  image: mysql:8.4
+  database: gym
+  persistence:
+    enabled: true
+    size: 50Gi

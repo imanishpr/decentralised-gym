@@ -1,0 +1,10 @@
+1. Access the service:
+{{- if .Values.ingress.enabled }}
+   http://{{ (index .Values.ingress.hosts 0).host }}
+{{- else }}
+   kubectl port-forward svc/{{ include "gymapp.fullname" . }} 8080:{{ .Values.service.port }}
+   Then open: http://127.0.0.1:8080/swagger-ui.html
+{{- end }}
+
+2. Health endpoint:
+   /actuator/health

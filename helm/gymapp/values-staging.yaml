@@ -1,0 +1,58 @@
+replicaCount: 1
+
+image:
+  repository: imanishpr/decentralised-gym
+  tag: staging
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  hosts:
+    - host: api-staging.gymapp.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: gymapp-staging-tls
+      hosts:
+        - api-staging.gymapp.example.com
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 384Mi
+  limits:
+    cpu: 500m
+    memory: 768Mi
+
+env:
+  serverPort: "8080"
+  datasourceUrl: jdbc:mysql://{{ include "gymapp.fullname" . }}-mysql:3306/gym?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+  datasourceUsername: root
+  jwtExpirationSeconds: "86400"
+  googleClientId: REPLACE_STAGING_GOOGLE_CLIENT_ID
+  facebookClientId: REPLACE_STAGING_FACEBOOK_CLIENT_ID
+  twitterClientId: REPLACE_STAGING_TWITTER_CLIENT_ID
+
+secrets:
+  datasourcePassword: REPLACE_STAGING_DB_PASSWORD
+  jwtSecret: REPLACE_STAGING_LONG_RANDOM_JWT_SECRET_MIN_32_CHARS
+  googleClientSecret: REPLACE_STAGING_GOOGLE_CLIENT_SECRET
+  facebookClientSecret: REPLACE_STAGING_FACEBOOK_CLIENT_SECRET
+  twitterClientSecret: REPLACE_STAGING_TWITTER_CLIENT_SECRET
+
+mysql:
+  enabled: true
+  image: mysql:8.4
+  database: gym
+  persistence:
+    enabled: true
+    size: 10Gi

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: gymapp
+description: Helm chart for Gym Visit Tracking backend (Spring Boot + MySQL)
+type: application
+version: 0.1.0
+appVersion: "0.0.1"
