@@ -4,6 +4,8 @@ import com.example.gymapp.entity.Gym;
 import com.example.gymapp.entity.VisitCode;
 import com.example.gymapp.repository.GymRepository;
 import com.example.gymapp.repository.VisitCodeRepository;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +41,31 @@ public class DataSeeder {
 
     private Gym ensureGym(GymRepository gymRepository, String name, String address, String city, boolean active) {
         return gymRepository.findByNameAndCity(name, city)
+                .map(existing -> {
+                    boolean changed = false;
+                    if (existing.getMaxDailyVisits() == null) {
+                        existing.setMaxDailyVisits(1000);
+                        changed = true;
+                    }
+                    if (existing.getActiveFromTime() == null) {
+                        existing.setActiveFromTime(LocalTime.of(5, 0));
+                        changed = true;
+                    }
+                    if (existing.getActiveToTime() == null) {
+                        existing.setActiveToTime(LocalTime.of(23, 0));
+                        changed = true;
+                    }
+                    return changed ? gymRepository.save(existing) : existing;
+                })
                 .orElseGet(() -> {
                     Gym gym = new Gym();
                     gym.setName(name);
                     gym.setAddress(address);
                     gym.setCity(city);
                     gym.setActive(active);
+                    gym.setMaxDailyVisits(1000);
+                    gym.setActiveFromTime(LocalTime.of(5, 0));
+                    gym.setActiveToTime(LocalTime.of(23, 0));
                     return gymRepository.save(gym);
                 });
     }
@@ -58,6 +79,8 @@ public class DataSeeder {
             code.setCode(rawCode);
             code.setGym(gym);
             code.setUsed(false);
+            code.setIssuedToGymAt(LocalDateTime.now());
+            code.setUsedByUser(null);
             code.setUsedAt(null);
             visitCodeRepository.save(code);
         }

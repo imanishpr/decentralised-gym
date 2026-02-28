@@ -2,6 +2,7 @@ package com.example.gymapp.security;
 
 import com.example.gymapp.entity.AuthProvider;
 import com.example.gymapp.entity.User;
+import com.example.gymapp.entity.UserRole;
 import com.example.gymapp.entity.UserStats;
 import com.example.gymapp.exception.BadRequestException;
 import com.example.gymapp.repository.UserRepository;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -49,7 +51,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 user.getName(),
                 user.getProvider(),
                 user.getProviderUserId(),
-                oauth2User.getAuthorities(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())),
                 oauth2User.getAttributes()
         );
     }
@@ -110,6 +112,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             user.setCreatedAt(LocalDateTime.now());
             user.setProvider(provider);
             user.setProviderUserId(info.providerUserId());
+            user.setRole(UserRole.USER);
+        } else if (user.getRole() == null) {
+            user.setRole(UserRole.USER);
         }
 
         user.setName(info.name());

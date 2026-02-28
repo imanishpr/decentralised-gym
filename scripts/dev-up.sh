@@ -15,7 +15,7 @@ if [[ "$MODE" == "docker" ]]; then
   if docker compose version >/dev/null 2>&1; then
     echo "Starting app + mysql with docker compose..."
     docker compose up --build -d
-    echo "Started. Open: http://localhost:8080/swagger-ui.html"
+    echo "Started. Open: http://localhost:8090/swagger-ui.html (MySQL: localhost:3307)"
   else
     echo "docker compose is not available. Use Docker Desktop v2+ or run: ./scripts/dev-up.sh --local"
     exit 1

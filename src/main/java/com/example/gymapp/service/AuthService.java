@@ -6,6 +6,7 @@ import com.example.gymapp.dto.SignupRequest;
 import com.example.gymapp.dto.UserProfileResponse;
 import com.example.gymapp.entity.AuthProvider;
 import com.example.gymapp.entity.User;
+import com.example.gymapp.entity.UserRole;
 import com.example.gymapp.entity.UserStats;
 import com.example.gymapp.exception.BadRequestException;
 import com.example.gymapp.exception.ConflictException;
@@ -61,6 +62,7 @@ public class AuthService {
         user.setProvider(AuthProvider.LOCAL);
         user.setProviderUserId(email);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setRole(UserRole.USER);
         user.setCreatedAt(LocalDateTime.now());
         User savedUser = userRepository.save(user);
 
@@ -88,16 +90,19 @@ public class AuthService {
             throw new UnauthorizedException("Invalid email or password");
         }
 
+        ensureRoleAssigned(user);
         return buildAuthResponse("Login successful", user);
     }
 
     public UserProfileResponse getCurrentUserProfile() {
         User user = authenticatedUserUtil.getCurrentUser();
+        ensureRoleAssigned(user);
         return toProfile(user);
     }
 
     public AuthResponse getCurrentUserAuthResponse(String message) {
         User user = authenticatedUserUtil.getCurrentUser();
+        ensureRoleAssigned(user);
         return buildAuthResponse(message, user);
     }
 
@@ -107,6 +112,7 @@ public class AuthService {
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setProvider(user.getProvider());
+        response.setRole(user.getRole());
         response.setProviderUserId(user.getProviderUserId());
         response.setCreatedAt(user.getCreatedAt());
         return response;
@@ -121,5 +127,12 @@ public class AuthService {
         response.setExpiresInSeconds(jwtService.getExpirationSeconds());
         response.setUser(toProfile(user));
         return response;
+    }
+
+    private void ensureRoleAssigned(User user) {
+        if (user.getRole() == null) {
+            user.setRole(UserRole.USER);
+            userRepository.save(user);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.gymapp.dto;
 
 import com.example.gymapp.entity.AuthProvider;
+import com.example.gymapp.entity.UserRole;
 import java.time.LocalDateTime;
 
 public class UserProfileResponse {
@@ -9,6 +10,7 @@ public class UserProfileResponse {
     private String name;
     private String email;
     private AuthProvider provider;
+    private UserRole role;
     private String providerUserId;
     private LocalDateTime createdAt;
 
@@ -42,6 +44,14 @@ public class UserProfileResponse {
 
     public void setProvider(AuthProvider provider) {
         this.provider = provider;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     public String getProviderUserId() {

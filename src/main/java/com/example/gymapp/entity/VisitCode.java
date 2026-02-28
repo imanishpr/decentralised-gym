@@ -26,8 +26,18 @@ public class VisitCode {
     @JoinColumn(name = "gym_id", nullable = false)
     private Gym gym;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "batch_id")
+    private QRBatch batch;
+
+    private LocalDateTime issuedToGymAt;
+
     @Column(nullable = false)
     private boolean isUsed;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "used_by_user_id")
+    private User usedByUser;
 
     private LocalDateTime usedAt;
 
@@ -55,12 +65,36 @@ public class VisitCode {
         this.gym = gym;
     }
 
+    public QRBatch getBatch() {
+        return batch;
+    }
+
+    public void setBatch(QRBatch batch) {
+        this.batch = batch;
+    }
+
+    public LocalDateTime getIssuedToGymAt() {
+        return issuedToGymAt;
+    }
+
+    public void setIssuedToGymAt(LocalDateTime issuedToGymAt) {
+        this.issuedToGymAt = issuedToGymAt;
+    }
+
     public boolean isUsed() {
         return isUsed;
     }
 
     public void setUsed(boolean used) {
         isUsed = used;
+    }
+
+    public User getUsedByUser() {
+        return usedByUser;
+    }
+
+    public void setUsedByUser(User usedByUser) {
+        this.usedByUser = usedByUser;
     }
 
     public LocalDateTime getUsedAt() {

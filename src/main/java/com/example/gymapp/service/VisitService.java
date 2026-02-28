@@ -4,6 +4,7 @@ import com.example.gymapp.dto.ScanCodeResponse;
 import com.example.gymapp.dto.VisitResponse;
 import com.example.gymapp.entity.Booking;
 import com.example.gymapp.entity.BookingStatus;
+import com.example.gymapp.entity.Gym;
 import com.example.gymapp.entity.User;
 import com.example.gymapp.entity.UserStats;
 import com.example.gymapp.entity.Visit;
@@ -30,6 +31,7 @@ public class VisitService {
     private final AuthenticatedUserUtil authenticatedUserUtil;
     private final StreakService streakService;
     private final BookingService bookingService;
+    private final RewardService rewardService;
 
     public VisitService(
             VisitCodeRepository visitCodeRepository,
@@ -37,7 +39,8 @@ public class VisitService {
             VisitRepository visitRepository,
             AuthenticatedUserUtil authenticatedUserUtil,
             StreakService streakService,
-            BookingService bookingService
+            BookingService bookingService,
+            RewardService rewardService
     ) {
         this.visitCodeRepository = visitCodeRepository;
         this.bookingRepository = bookingRepository;
@@ -45,6 +48,7 @@ public class VisitService {
         this.authenticatedUserUtil = authenticatedUserUtil;
         this.streakService = streakService;
         this.bookingService = bookingService;
+        this.rewardService = rewardService;
     }
 
     @Transactional
@@ -59,17 +63,30 @@ public class VisitService {
             throw new ConflictException("Visit code has already been used");
         }
 
+        Gym gym = visitCode.getGym();
+        if (!gym.isActive()) {
+            throw new BadRequestException("Gym is not active");
+        }
+
+        validateGymVisitWindow(gym);
+        validateMaxDailyVisits(gym);
+
         LocalDate today = LocalDate.now();
 
         Booking booking = bookingRepository.findFirstByUserAndGymAndBookingDateAndStatusOrderByCreatedAtDesc(
                         user,
-                        visitCode.getGym(),
+                        gym,
                         today,
                         BookingStatus.CREATED
                 )
                 .orElseThrow(() -> new BadRequestException("No created booking found for this gym and date"));
 
+        if (!booking.getGym().getId().equals(gym.getId())) {
+            throw new BadRequestException("Booking gym does not match QR code gym");
+        }
+
         visitCode.setUsed(true);
+        visitCode.setUsedByUser(user);
         visitCode.setUsedAt(LocalDateTime.now());
         visitCodeRepository.save(visitCode);
 
@@ -78,18 +95,19 @@ public class VisitService {
 
         Visit visit = new Visit();
         visit.setUser(user);
-        visit.setGym(visitCode.getGym());
+        visit.setGym(gym);
         visit.setBooking(booking);
         visit.setVisitedAt(LocalDateTime.now());
         Visit savedVisit = visitRepository.save(visit);
 
         UserStats stats = streakService.registerVisit(user, today);
+        rewardService.processLoyaltyReward(user, gym);
 
         ScanCodeResponse response = new ScanCodeResponse();
         response.setVisitId(savedVisit.getId());
         response.setBookingId(booking.getId());
-        response.setGymId(visitCode.getGym().getId());
-        response.setGymName(visitCode.getGym().getName());
+        response.setGymId(gym.getId());
+        response.setGymName(gym.getName());
         response.setVisitedAt(savedVisit.getVisitedAt());
         response.setCurrentStreak(stats.getCurrentStreak());
         response.setLongestStreak(stats.getLongestStreak());
@@ -115,5 +133,44 @@ public class VisitService {
         response.setBookingId(visit.getBooking().getId());
         response.setVisitedAt(visit.getVisitedAt());
         return response;
+    }
+
+    private void validateMaxDailyVisits(Gym gym) {
+        Integer maxDailyVisits = gym.getMaxDailyVisits();
+        if (maxDailyVisits == null || maxDailyVisits <= 0) {
+            return;
+        }
+
+        LocalDate today = LocalDate.now();
+        long visitsToday = visitRepository.countByGymAndVisitedAtBetween(
+                gym,
+                today.atStartOfDay(),
+                today.plusDays(1).atStartOfDay().minusNanos(1)
+        );
+
+        if (visitsToday >= maxDailyVisits) {
+            throw new ConflictException("Gym has reached today's visit capacity");
+        }
+    }
+
+    private void validateGymVisitWindow(Gym gym) {
+        if (gym.getActiveFromTime() == null || gym.getActiveToTime() == null) {
+            return;
+        }
+
+        var now = LocalDateTime.now().toLocalTime();
+        var from = gym.getActiveFromTime();
+        var to = gym.getActiveToTime();
+
+        boolean withinWindow;
+        if (from.isBefore(to)) {
+            withinWindow = !now.isBefore(from) && !now.isAfter(to);
+        } else {
+            withinWindow = !now.isBefore(from) || !now.isAfter(to);
+        }
+
+        if (!withinWindow) {
+            throw new BadRequestException("Gym is currently outside active visit hours");
+        }
     }
 }
