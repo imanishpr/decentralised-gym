@@ -28,6 +28,13 @@ public class GymService {
         response.setName(gym.getName());
         response.setAddress(gym.getAddress());
         response.setCity(gym.getCity());
+        response.setLatitude(gym.getLatitude());
+        response.setLongitude(gym.getLongitude());
+        response.setGoogleMapUrl(gym.getGoogleMapUrl());
+        response.setImageUrl(gym.getImageUrl());
+        response.setPricePerHourInr(gym.getPricePerHourInr());
+        response.setActiveFromTime(gym.getActiveFromTime());
+        response.setActiveToTime(gym.getActiveToTime());
         response.setActive(gym.isActive());
         return response;
     }

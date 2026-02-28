@@ -3,6 +3,7 @@ package com.example.gymapp.dto;
 import com.example.gymapp.entity.BookingStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class BookingResponse {
 
@@ -10,6 +11,9 @@ public class BookingResponse {
     private Long gymId;
     private String gymName;
     private LocalDate bookingDate;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private Integer durationHours;
     private String note;
     private BookingStatus status;
     private LocalDateTime createdAt;
@@ -44,6 +48,30 @@ public class BookingResponse {
 
     public void setBookingDate(LocalDate bookingDate) {
         this.bookingDate = bookingDate;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public Integer getDurationHours() {
+        return durationHours;
+    }
+
+    public void setDurationHours(Integer durationHours) {
+        this.durationHours = durationHours;
     }
 
     public String getNote() {

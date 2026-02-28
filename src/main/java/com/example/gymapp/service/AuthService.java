@@ -114,6 +114,7 @@ public class AuthService {
         response.setProvider(user.getProvider());
         response.setRole(user.getRole());
         response.setProviderUserId(user.getProviderUserId());
+        response.setProfileImageUrl(user.getProfileImageUrl());
         response.setCreatedAt(user.getCreatedAt());
         return response;
     }

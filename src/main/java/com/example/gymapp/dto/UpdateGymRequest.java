@@ -1,28 +1,18 @@
 package com.example.gymapp.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
-import org.hibernate.validator.constraints.URL;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalTime;
+import org.hibernate.validator.constraints.URL;
 
-public class CreateGymRequest {
+public class UpdateGymRequest {
 
-    @NotBlank(message = "name is required")
-    @Size(max = 255, message = "name cannot exceed 255 characters")
-    private String name;
-
-    @NotBlank(message = "address is required")
-    @Size(max = 255, message = "address cannot exceed 255 characters")
-    private String address;
-
-    @NotBlank(message = "city is required")
-    @Size(max = 255, message = "city cannot exceed 255 characters")
-    private String city;
+    @NotNull(message = "isActive is required")
+    private Boolean active;
 
     @DecimalMin(value = "-90.0", message = "latitude must be >= -90")
     @DecimalMax(value = "90.0", message = "latitude must be <= 90")
@@ -54,28 +44,12 @@ public class CreateGymRequest {
     @NotNull(message = "activeToTime is required")
     private LocalTime activeToTime;
 
-    public String getName() {
-        return name;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public Double getLatitude() {

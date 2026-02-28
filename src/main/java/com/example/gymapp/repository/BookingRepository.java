@@ -14,6 +14,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     boolean existsByUserAndGymAndBookingDateAndStatusIn(User user, Gym gym, LocalDate bookingDate, Collection<BookingStatus> statuses);
 
+    boolean existsByUserAndGymAndBookingDateAndStatusInAndIdNot(
+            User user,
+            Gym gym,
+            LocalDate bookingDate,
+            Collection<BookingStatus> statuses,
+            Long id
+    );
+
     List<Booking> findByUserOrderByBookingDateDescCreatedAtDesc(User user);
 
     List<Booking> findByUserAndStatusAndBookingDateBefore(User user, BookingStatus status, LocalDate bookingDate);
@@ -24,4 +32,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             LocalDate bookingDate,
             BookingStatus status
     );
+
+    Optional<Booking> findByIdAndUser(Long id, User user);
 }

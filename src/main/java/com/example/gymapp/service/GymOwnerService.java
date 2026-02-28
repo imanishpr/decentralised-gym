@@ -1,9 +1,11 @@
 package com.example.gymapp.service;
 
 import com.example.gymapp.dto.CreateGymRequest;
+import com.example.gymapp.dto.CurrentGymUserResponse;
 import com.example.gymapp.dto.GymAnalyticsSummaryResponse;
 import com.example.gymapp.dto.GymOwnerGymResponse;
 import com.example.gymapp.dto.PeakHourResponse;
+import com.example.gymapp.dto.UpdateGymRequest;
 import com.example.gymapp.entity.Gym;
 import com.example.gymapp.entity.User;
 import com.example.gymapp.entity.UserRole;
@@ -61,6 +63,11 @@ public class GymOwnerService {
         gym.setName(request.getName().trim());
         gym.setAddress(request.getAddress().trim());
         gym.setCity(request.getCity().trim());
+        gym.setLatitude(request.getLatitude());
+        gym.setLongitude(request.getLongitude());
+        gym.setGoogleMapUrl(request.getGoogleMapUrl());
+        gym.setImageUrl(request.getImageUrl());
+        gym.setPricePerHourInr(request.getPricePerHourInr() == null ? 199.0 : request.getPricePerHourInr());
         gym.setOwner(user);
         gym.setMaxDailyVisits(request.getMaxDailyVisits());
         gym.setActiveFromTime(request.getActiveFromTime());
@@ -81,6 +88,67 @@ public class GymOwnerService {
     public GymOwnerGymResponse getMyGym() {
         Gym gym = getOwnerGym();
         return toGymResponse(gym);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GymOwnerGymResponse> getManagedGyms() {
+        User user = authenticatedUserUtil.getCurrentUser();
+        List<Gym> gyms;
+        if (user.getRole() == UserRole.ADMIN) {
+            gyms = gymRepository.findAll().stream()
+                    .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
+                    .toList();
+        } else {
+            gyms = gymRepository.findByOwnerOrderByNameAsc(user);
+        }
+
+        return gyms.stream().map(this::toGymResponse).toList();
+    }
+
+    @Transactional
+    public GymOwnerGymResponse updateGym(Long gymId, UpdateGymRequest request) {
+        if (request.getActiveFromTime().equals(request.getActiveToTime())) {
+            throw new BadRequestException("activeFromTime and activeToTime cannot be the same");
+        }
+
+        Gym gym = getAccessibleGym(gymId);
+        gym.setActive(request.getActive());
+        gym.setMaxDailyVisits(request.getMaxDailyVisits());
+        gym.setActiveFromTime(request.getActiveFromTime());
+        gym.setActiveToTime(request.getActiveToTime());
+        gym.setLatitude(request.getLatitude());
+        gym.setLongitude(request.getLongitude());
+        gym.setGoogleMapUrl(request.getGoogleMapUrl());
+        gym.setImageUrl(request.getImageUrl());
+        if (request.getPricePerHourInr() != null) {
+            gym.setPricePerHourInr(request.getPricePerHourInr());
+        }
+
+        Gym saved = gymRepository.save(gym);
+        return toGymResponse(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CurrentGymUserResponse> getCurrentUsersInsideGym(Long gymId) {
+        Gym gym = getAccessibleGym(gymId);
+
+        return visitRepository.findCurrentUsersInsideGym(
+                        gym.getId(),
+                        LocalDate.now(),
+                        LocalDateTime.now()
+                )
+                .stream()
+                .map(row -> {
+                    CurrentGymUserResponse response = new CurrentGymUserResponse();
+                    response.setUserId(row.getUserId());
+                    response.setUserName(row.getUserName());
+                    response.setUserEmail(row.getUserEmail());
+                    response.setLastVisitedAt(row.getLastVisitedAt());
+                    response.setBookingStartTime(row.getBookingStartTime());
+                    response.setBookingEndTime(row.getBookingEndTime());
+                    return response;
+                })
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -130,12 +198,33 @@ public class GymOwnerService {
                 .orElseThrow(() -> new ResourceNotFoundException("No gym found for this owner"));
     }
 
+    @Transactional(readOnly = true)
+    public Gym getAccessibleGym(Long gymId) {
+        User user = authenticatedUserUtil.getCurrentUser();
+        Gym gym = gymRepository.findById(gymId)
+                .orElseThrow(() -> new ResourceNotFoundException("Gym not found with id: " + gymId));
+
+        if (user.getRole() == UserRole.ADMIN) {
+            return gym;
+        }
+
+        if (gym.getOwner() == null || !gym.getOwner().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("No gym found for this owner");
+        }
+        return gym;
+    }
+
     private GymOwnerGymResponse toGymResponse(Gym gym) {
         GymOwnerGymResponse response = new GymOwnerGymResponse();
         response.setId(gym.getId());
         response.setName(gym.getName());
         response.setAddress(gym.getAddress());
         response.setCity(gym.getCity());
+        response.setLatitude(gym.getLatitude());
+        response.setLongitude(gym.getLongitude());
+        response.setGoogleMapUrl(gym.getGoogleMapUrl());
+        response.setImageUrl(gym.getImageUrl());
+        response.setPricePerHourInr(gym.getPricePerHourInr());
         response.setActive(gym.isActive());
         response.setMaxDailyVisits(gym.getMaxDailyVisits());
         response.setActiveFromTime(gym.getActiveFromTime());

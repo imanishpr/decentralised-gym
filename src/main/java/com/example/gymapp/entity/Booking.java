@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "bookings")
@@ -32,6 +33,15 @@ public class Booking {
 
     @Column(nullable = false)
     private LocalDate bookingDate;
+
+    @Column
+    private LocalTime startTime;
+
+    @Column
+    private LocalTime endTime;
+
+    @Column
+    private Integer durationHours;
 
     @Column(length = 500)
     private String note;
@@ -73,6 +83,30 @@ public class Booking {
 
     public void setBookingDate(LocalDate bookingDate) {
         this.bookingDate = bookingDate;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public Integer getDurationHours() {
+        return durationHours;
+    }
+
+    public void setDurationHours(Integer durationHours) {
+        this.durationHours = durationHours;
     }
 
     public String getNote() {

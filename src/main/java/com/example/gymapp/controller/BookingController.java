@@ -2,16 +2,20 @@ package com.example.gymapp.controller;
 
 import com.example.gymapp.dto.BookingResponse;
 import com.example.gymapp.dto.CreateBookingRequest;
+import com.example.gymapp.dto.UpdateBookingRequest;
 import com.example.gymapp.service.BookingService;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
@@ -32,5 +36,19 @@ public class BookingController {
     @GetMapping("/my-bookings")
     public List<BookingResponse> getMyBookings() {
         return bookingService.getMyBookings();
+    }
+
+    @PutMapping("/{bookingId}")
+    public BookingResponse updateBooking(
+            @PathVariable Long bookingId,
+            @Valid @RequestBody UpdateBookingRequest request
+    ) {
+        return bookingService.updateBooking(bookingId, request);
+    }
+
+    @DeleteMapping("/{bookingId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBooking(@PathVariable Long bookingId) {
+        bookingService.deleteBooking(bookingId);
     }
 }

@@ -41,6 +41,9 @@ public class User {
     @Column(name = "password_hash")
     private String passwordHash;
 
+    @Column(name = "profile_image_url", length = 1000)
+    private String profileImageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20, columnDefinition = "varchar(20) default 'USER'")
     private UserRole role;
@@ -94,6 +97,14 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public UserRole getRole() {

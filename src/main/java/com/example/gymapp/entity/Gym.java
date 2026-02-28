@@ -28,6 +28,21 @@ public class Gym {
     @Column(nullable = false)
     private String city;
 
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
+    @Column(length = 1000)
+    private String googleMapUrl;
+
+    @Column(length = 1000)
+    private String imageUrl;
+
+    @Column
+    private Double pricePerHourInr;
+
     @Column(nullable = false)
     private boolean isActive;
 
@@ -74,6 +89,46 @@ public class Gym {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getGoogleMapUrl() {
+        return googleMapUrl;
+    }
+
+    public void setGoogleMapUrl(String googleMapUrl) {
+        this.googleMapUrl = googleMapUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public Double getPricePerHourInr() {
+        return pricePerHourInr;
+    }
+
+    public void setPricePerHourInr(Double pricePerHourInr) {
+        this.pricePerHourInr = pricePerHourInr;
     }
 
     public boolean isActive() {

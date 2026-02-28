@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 
 public class CreateQrBatchRequest {
 
+    private Long gymId;
+
     @NotBlank(message = "batchName is required")
     @Size(max = 255, message = "batchName cannot exceed 255 characters")
     private String batchName;
@@ -19,6 +21,14 @@ public class CreateQrBatchRequest {
 
     public String getBatchName() {
         return batchName;
+    }
+
+    public Long getGymId() {
+        return gymId;
+    }
+
+    public void setGymId(Long gymId) {
+        this.gymId = gymId;
     }
 
     public void setBatchName(String batchName) {

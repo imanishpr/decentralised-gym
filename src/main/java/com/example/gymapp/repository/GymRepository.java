@@ -15,4 +15,6 @@ public interface GymRepository extends JpaRepository<Gym, Long> {
     Optional<Gym> findByNameAndCity(String name, String city);
 
     Optional<Gym> findByOwner(User owner);
+
+    List<Gym> findByOwnerOrderByNameAsc(User owner);
 }

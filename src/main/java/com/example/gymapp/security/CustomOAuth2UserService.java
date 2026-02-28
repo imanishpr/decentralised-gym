@@ -80,11 +80,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             String email = Optional.ofNullable(getString(dataMap, "email"))
                     .filter(value -> !value.isBlank())
                     .orElse(providerUserId + "@twitter.local");
+            String pictureUrl = getString(dataMap, "profile_image_url");
 
             validateRequired(providerUserId, "providerUserId");
             validateRequired(name, "name");
 
-            return new ProviderUserInfo(providerUserId, name, email);
+            return new ProviderUserInfo(providerUserId, name, email, pictureUrl);
         }
 
         String providerUserId = switch (provider) {
@@ -97,11 +98,16 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String email = Optional.ofNullable(getString(attributes, "email"))
                 .filter(value -> !value.isBlank())
                 .orElse(providerUserId + "@" + provider.name().toLowerCase() + ".local");
+        String pictureUrl = switch (provider) {
+            case GOOGLE -> getString(attributes, "picture");
+            case FACEBOOK -> extractFacebookPictureUrl(attributes);
+            default -> null;
+        };
 
         validateRequired(providerUserId, "providerUserId");
         validateRequired(name, "name");
 
-        return new ProviderUserInfo(providerUserId, name, email);
+        return new ProviderUserInfo(providerUserId, name, email, pictureUrl);
     }
 
     private User upsertUser(AuthProvider provider, ProviderUserInfo info) {
@@ -119,8 +125,24 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         user.setName(info.name());
         user.setEmail(info.email());
+        user.setProfileImageUrl(info.profileImageUrl());
 
         return userRepository.save(user);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String extractFacebookPictureUrl(Map<String, Object> attributes) {
+        Object pictureObj = attributes.get("picture");
+        if (!(pictureObj instanceof Map<?, ?> pictureMap)) {
+            return null;
+        }
+
+        Object dataObj = pictureMap.get("data");
+        if (!(dataObj instanceof Map<?, ?> dataMap)) {
+            return null;
+        }
+
+        return getString(dataMap, "url");
     }
 
     private void ensureStatsExists(User user) {
@@ -147,6 +169,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
     }
 
-    private record ProviderUserInfo(String providerUserId, String name, String email) {
+    private record ProviderUserInfo(String providerUserId, String name, String email, String profileImageUrl) {
     }
 }

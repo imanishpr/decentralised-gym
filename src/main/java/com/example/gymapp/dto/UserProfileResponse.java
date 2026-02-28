@@ -12,6 +12,7 @@ public class UserProfileResponse {
     private AuthProvider provider;
     private UserRole role;
     private String providerUserId;
+    private String profileImageUrl;
     private LocalDateTime createdAt;
 
     public Long getId() {
@@ -60,6 +61,14 @@ public class UserProfileResponse {
 
     public void setProviderUserId(String providerUserId) {
         this.providerUserId = providerUserId;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     public LocalDateTime getCreatedAt() {
