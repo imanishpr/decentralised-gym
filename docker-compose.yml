@@ -1,4 +1,7 @@
+version: '3.9'
+
 services:
+
   mysql:
     image: mysql:8.4
     container_name: gymapp-mysql
@@ -32,14 +35,20 @@ services:
       SPRING_DATASOURCE_PASSWORD: Sample-pass
       APP_JWT_SECRET: change-this-to-a-very-long-random-secret-key-at-least-32-bytes
       APP_JWT_EXPIRATION_SECONDS: 86400
-      GOOGLE_CLIENT_ID: YOUR_GOOGLE_CLIENT_ID
-      GOOGLE_CLIENT_SECRET: YOUR_GOOGLE_CLIENT_SECRET
-      FACEBOOK_CLIENT_ID: YOUR_FACEBOOK_CLIENT_ID
-      FACEBOOK_CLIENT_SECRET: YOUR_FACEBOOK_CLIENT_SECRET
-      TWITTER_CLIENT_ID: YOUR_TWITTER_CLIENT_ID
-      TWITTER_CLIENT_SECRET: YOUR_TWITTER_CLIENT_SECRET
+    expose:
+      - "8080"
+
+  nginx:
+    image: nginx:latest
+    container_name: gymapp-nginx
+    restart: unless-stopped
     ports:
-      - "8090:8080"
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./flutter-web:/usr/share/nginx/html
+    depends_on:
+      - app
 
 volumes:
   mysql_data:
