@@ -16,6 +16,28 @@ echo "==> Installing required tools (git, openjdk@21, maven, flutter, ngrok)"
 brew install git openjdk@21 maven docker-compose ngrok/ngrok/ngrok || true
 brew install --cask flutter || true
 
+export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
+
+if ! command -v flutter >/dev/null 2>&1; then
+  if ls /opt/homebrew/Caskroom/flutter/*/flutter/bin/flutter >/dev/null 2>&1; then
+    FLUTTER_BIN="$(ls -d /opt/homebrew/Caskroom/flutter/*/flutter/bin | tail -n 1)"
+    export PATH="${FLUTTER_BIN}:${PATH}"
+  elif [ -x "${HOME}/develop/flutter/bin/flutter" ]; then
+    export PATH="${HOME}/develop/flutter/bin:${PATH}"
+  elif [ -x "${HOME}/flutter/bin/flutter" ]; then
+    export PATH="${HOME}/flutter/bin:${PATH}"
+  fi
+fi
+
+if ! command -v flutter >/dev/null 2>&1; then
+  echo "Flutter CLI not found in PATH."
+  echo "Run these and retry:"
+  echo "  brew install --cask flutter"
+  echo "  echo 'export PATH=\"/opt/homebrew/bin:\$PATH\"' >> ~/.zshrc"
+  echo "  source ~/.zshrc"
+  exit 1
+fi
+
 if [ -d "/opt/homebrew/opt/openjdk@21" ]; then
   export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
   export PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH"

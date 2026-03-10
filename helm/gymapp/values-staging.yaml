@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: imanishpr/decentralised-gym
-  tag: staging
+  repository: theprocastinator/decentralised-gym
+  tag: v1
   pullPolicy: IfNotPresent
 
 service:
@@ -11,7 +11,7 @@ service:
   targetPort: 8080
 
 ingress:
-  enabled: true
+  enabled: false
   className: nginx
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
@@ -38,16 +38,16 @@ env:
   datasourceUrl: jdbc:mysql://{{ include "gymapp.fullname" . }}-mysql:3306/gym?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
   datasourceUsername: root
   jwtExpirationSeconds: "86400"
-  googleClientId: REPLACE_STAGING_GOOGLE_CLIENT_ID
-  facebookClientId: REPLACE_STAGING_FACEBOOK_CLIENT_ID
-  twitterClientId: REPLACE_STAGING_TWITTER_CLIENT_ID
+  googleClientId: DISABLED_FOR_LOCAL_ARGO_SETUP
+  facebookClientId: DISABLED_FOR_LOCAL_ARGO_SETUP
+  twitterClientId: DISABLED_FOR_LOCAL_ARGO_SETUP
 
 secrets:
-  datasourcePassword: REPLACE_STAGING_DB_PASSWORD
-  jwtSecret: REPLACE_STAGING_LONG_RANDOM_JWT_SECRET_MIN_32_CHARS
-  googleClientSecret: REPLACE_STAGING_GOOGLE_CLIENT_SECRET
-  facebookClientSecret: REPLACE_STAGING_FACEBOOK_CLIENT_SECRET
-  twitterClientSecret: REPLACE_STAGING_TWITTER_CLIENT_SECRET
+  datasourcePassword: Sample-pass
+  jwtSecret: change-this-to-a-very-long-random-secret-key-at-least-32-bytes
+  googleClientSecret: DISABLED_FOR_LOCAL_ARGO_SETUP
+  facebookClientSecret: DISABLED_FOR_LOCAL_ARGO_SETUP
+  twitterClientSecret: DISABLED_FOR_LOCAL_ARGO_SETUP
 
 mysql:
   enabled: true
