@@ -52,3 +52,8 @@ mysql:
   persistence:
     enabled: true
     size: 8Gi
+
+startup:
+  waitForMysql:
+    enabled: true
+    image: busybox:1.36

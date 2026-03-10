@@ -16,6 +16,16 @@ spec:
         app.kubernetes.io/name: {{ include "gymapp.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if and .Values.mysql.enabled .Values.startup.waitForMysql.enabled }}
+      initContainers:
+        - name: wait-for-mysql
+          image: {{ .Values.startup.waitForMysql.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - until nc -z {{ include "gymapp.fullname" . }}-mysql 3306; do echo waiting for mysql; sleep 2; done
+      {{- end }}
       containers:
         - name: gymapp
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
