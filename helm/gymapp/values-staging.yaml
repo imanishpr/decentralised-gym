@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: theprocastinator/decentralised-gym
-  tag: v1
+  tag: 20260311012754-a9e093e
   pullPolicy: IfNotPresent
 
 service:
