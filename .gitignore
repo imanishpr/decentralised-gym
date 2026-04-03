@@ -1,5 +1,6 @@
 # Maven
 /target/
+/gym_visit_flutter/
 
 # IDE
 .idea/
