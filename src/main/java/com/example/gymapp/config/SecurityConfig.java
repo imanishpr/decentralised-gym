@@ -76,7 +76,8 @@ public class SecurityConfig {
                 "http://127.0.0.1:*",
                 "http://192.168.*:*",
                 "https://*.ngrok-free.dev",
-                "https://*.ngrok.io"
+                "https://*.ngrok.io",
+                "https://*.vercel.app"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
